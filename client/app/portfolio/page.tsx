@@ -14,9 +14,9 @@ const SPACER_GIF = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALA
 
 function getEmbedUrl(url: string): { type: "video" | "iframe"; embedUrl: string; thumbnailUrl?: string } {
   if (!url) return { type: "video", embedUrl: "" };
-  
+
   const cleanUrl = url.trim();
-  
+
   // YouTube checks
   if (cleanUrl.includes("youtube.com/watch") || cleanUrl.includes("youtu.be") || cleanUrl.includes("youtube.com/shorts")) {
     let videoId = "";
@@ -29,13 +29,13 @@ function getEmbedUrl(url: string): { type: "video" | "iframe"; embedUrl: string;
     } else if (cleanUrl.includes("youtube.com/shorts")) {
       videoId = cleanUrl.split("/shorts/")[1]?.split("?")[0] || "";
     }
-    return { 
-      type: "iframe", 
+    return {
+      type: "iframe",
       embedUrl: `https://www.youtube.com/embed/${videoId}`,
       thumbnailUrl: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
     };
   }
-  
+
   // Instagram checks
   if (cleanUrl.includes("instagram.com/reel/") || cleanUrl.includes("instagram.com/p/")) {
     let shortcode = "";
@@ -44,13 +44,13 @@ function getEmbedUrl(url: string): { type: "video" | "iframe"; embedUrl: string;
     } else if (cleanUrl.includes("instagram.com/p/")) {
       shortcode = cleanUrl.split("/p/")[1]?.split("/")[0] || "";
     }
-    return { 
-      type: "iframe", 
+    return {
+      type: "iframe",
       embedUrl: `https://www.instagram.com/reel/${shortcode}/embed/`,
       thumbnailUrl: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500"
     };
   }
-  
+
   return { type: "video", embedUrl: cleanUrl };
 }
 
@@ -125,6 +125,7 @@ export default function Portfolio() {
   const [galleryItems, setGalleryItems] = useState<UnifiedGalleryItem[]>(staticUnifiedItems);
   const [sectionImages, setSectionImages] = useState<Record<string, string>>({});
   const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [dbInstagramPosts, setDbInstagramPosts] = useState<string[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -152,7 +153,22 @@ export default function Portfolio() {
           if (res.ok) {
             const data = await res.json();
             if (data && data.length > 0) {
-              const mapped = data.map((item: any) => {
+              // Extract Instagram Posts
+              const instagramItems = data.filter((item: any) => item.category === "instagram");
+              if (instagramItems.length > 0) {
+                const urls = instagramItems.map((item: any) => {
+                  const isLocalImg = item.imageUrl && !item.imageUrl.startsWith("http");
+                  return item.imageUrl
+                    ? (isLocalImg ? `${API_BASE_URL.replace("/api", "")}${item.imageUrl}` : item.imageUrl)
+                    : item.videoUrl || "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500";
+                });
+                setDbInstagramPosts(urls);
+              }
+
+              // Filter out instagram category items for the main gallery list
+              const nonInstagramData = data.filter((item: any) => item.category !== "instagram");
+
+              const mapped = nonInstagramData.map((item: any) => {
                 // Convert HEIC/HEIF urls to .jpg dynamically for browser rendering
                 let rawImageUrl = item.imageUrl || "";
                 if (rawImageUrl && /\.(heic|heif)$/i.test(rawImageUrl)) {
@@ -170,22 +186,22 @@ export default function Portfolio() {
                 }
 
                 const isLocalImg = rawImageUrl && !rawImageUrl.startsWith("http");
-                const imageUrl = rawImageUrl 
+                const imageUrl = rawImageUrl
                   ? (isLocalImg ? `${API_BASE_URL.replace("/api", "")}${rawImageUrl}` : rawImageUrl)
                   : undefined;
-                
+
                 const isLocalBefore = rawBeforeImageUrl && !rawBeforeImageUrl.startsWith("http");
-                const beforeUrl = rawBeforeImageUrl 
+                const beforeUrl = rawBeforeImageUrl
                   ? (isLocalBefore ? `${API_BASE_URL.replace("/api", "")}${rawBeforeImageUrl}` : rawBeforeImageUrl)
                   : undefined;
 
                 const isLocalAfter = rawAfterImageUrl && !rawAfterImageUrl.startsWith("http");
-                const afterUrl = rawAfterImageUrl 
+                const afterUrl = rawAfterImageUrl
                   ? (isLocalAfter ? `${API_BASE_URL.replace("/api", "")}${rawAfterImageUrl}` : rawAfterImageUrl)
                   : undefined;
 
                 const isLocalVideo = item.videoUrl && !item.videoUrl.startsWith("http");
-                const videoUrl = item.videoUrl 
+                const videoUrl = item.videoUrl
                   ? (isLocalVideo ? `${API_BASE_URL.replace("/api", "")}${item.videoUrl}` : item.videoUrl)
                   : undefined;
 
@@ -194,12 +210,12 @@ export default function Portfolio() {
                   title: item.title,
                   category: item.category,
                   categoryLabel: item.category === "cuts" ? "Precision Cuts" :
-                                 item.category === "colors" ? "Advanced Coloring" :
-                                 item.category === "styling" ? "Editorial Styling" :
-                                 item.category === "bridal" ? "Bridal Styling" :
-                                 item.category === "grooming" ? "Grooming Heritage" : 
-                                 item.category === "studio" ? "Our Studio" : 
-                                 item.category === "reels" ? "REEL" : "TRANSFORMATION",
+                    item.category === "colors" ? "Advanced Coloring" :
+                      item.category === "styling" ? "Editorial Styling" :
+                        item.category === "bridal" ? "Bridal Styling" :
+                          item.category === "grooming" ? "Grooming Heritage" :
+                            item.category === "studio" ? "Our Studio" :
+                              item.category === "reels" ? "REEL" : "TRANSFORMATION",
                   image: imageUrl || beforeUrl || (videoUrl ? getEmbedUrl(videoUrl).thumbnailUrl : undefined) || "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500",
                   videoUrl,
                   before: beforeUrl,
@@ -260,10 +276,10 @@ export default function Portfolio() {
         {/* Portfolio Masonry Grid */}
         <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop mb-stack-lg">
           <div className="columns-1 md:columns-2 lg:columns-3 gap-gutter">
-            
+
             {galleryItems.map((item) => {
               if (item.category === "transformations") {
-                const beforeImg = item.id === "trans-1" 
+                const beforeImg = item.id === "trans-1"
                   ? (sectionImages.portfolio_before || item.before)
                   : item.before;
                 const afterImg = item.id === "trans-1"
@@ -293,8 +309,8 @@ export default function Portfolio() {
                 const isDirectVideo = item.videoUrl && type === "video";
 
                 return (
-                  <div 
-                    key={item.id} 
+                  <div
+                    key={item.id}
                     onClick={() => {
                       if (item.videoUrl && imagesLoaded) setActiveVideo(item.videoUrl);
                     }}
@@ -373,7 +389,7 @@ export default function Portfolio() {
               </div>
               <a
                 className="flex items-center gap-2 group border-b border-primary pb-2 font-button-text text-primary"
-                href="https://instagram.com"
+                href="https://www.instagram.com/1_hair_artist_"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -383,12 +399,11 @@ export default function Portfolio() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {instagramPosts.map((post, idx) => (
+              {(dbInstagramPosts.length > 0 ? dbInstagramPosts : instagramPosts).map((post, idx) => (
                 <div
                   key={idx}
-                  className={`aspect-square bg-surface-container overflow-hidden rounded-lg group cursor-pointer relative shadow-sm hover:shadow-md border border-outline-variant/10 ${
-                    idx >= 4 ? "hidden md:block" : ""
-                  }`}
+                  className={`aspect-square bg-surface-container overflow-hidden rounded-lg group cursor-pointer relative shadow-sm hover:shadow-md border border-outline-variant/10 ${idx >= 4 ? "hidden md:block" : ""
+                    }`}
                 >
                   <img
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"

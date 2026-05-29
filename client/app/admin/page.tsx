@@ -90,7 +90,7 @@ interface Service {
 interface GalleryItem {
   _id: string;
   title: string;
-  category: "cuts" | "colors" | "styling" | "bridal" | "grooming" | "studio" | "transformations" | "reels";
+  category: "cuts" | "colors" | "styling" | "bridal" | "grooming" | "studio" | "transformations" | "reels" | "instagram";
   imageUrl?: string;
   videoUrl?: string;
   beforeImageUrl?: string;
@@ -1705,6 +1705,7 @@ export default function AdminDashboard() {
                                   <option value="studio">Our Studio (Studio)</option>
                                   <option value="transformations">Before/After Transformation</option>
                                   <option value="reels">MP4 Reels / Videos</option>
+                                  <option value="instagram">Instagram Post</option>
                                 </select>
                               </div>
                             </div>

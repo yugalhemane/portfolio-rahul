@@ -10,7 +10,7 @@ const gallerySchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, "Category is required"],
-      enum: ["cuts", "colors", "styling", "bridal", "grooming", "studio", "transformations", "reels"],
+      enum: ["cuts", "colors", "styling", "bridal", "grooming", "studio", "transformations", "reels", "instagram"],
       default: "cuts",
     },
     imageUrl: {

@@ -74,6 +74,15 @@ export default function Booking() {
 
     fetchServices();
     fetchSectionImages();
+
+    // Check query params to preselect service
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const serviceParam = params.get("service");
+      if (serviceParam) {
+        setFormData((prev) => ({ ...prev, service: decodeURIComponent(serviceParam) }));
+      }
+    }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {

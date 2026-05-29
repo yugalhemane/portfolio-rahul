@@ -18,7 +18,7 @@ export default function PremiumFooter() {
           <div className="flex gap-4">
             <a
               className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-primary hover:text-white transition-all text-on-surface-variant"
-              href="https://instagram.com"
+              href="https://www.instagram.com/1_hair_artist_"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -120,11 +120,11 @@ export default function PremiumFooter() {
           <ul className="space-y-4 font-body-md text-body-md">
             <li className="flex items-center gap-3 text-on-surface-variant">
               <Mail size={16} className="text-primary shrink-0" />
-              <span>contact@rahulst.com</span>
+              <span>rahultipukade1@gmail.com</span>
             </li>
             <li className="flex items-center gap-3 text-on-surface-variant">
               <Phone size={16} className="text-primary shrink-0" />
-              <span>+91 98765 43210</span>
+              <span>+91 8867732280</span>
             </li>
             <li className="flex items-center gap-3 text-on-surface-variant">
               <MapPin size={16} className="text-primary shrink-0" />

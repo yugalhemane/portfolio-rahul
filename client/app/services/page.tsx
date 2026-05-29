@@ -157,39 +157,40 @@ export default function Services() {
               {services.map((service, idx) => {
                 const IconComponent = iconMap[service.iconName as keyof typeof iconMap] || Scissors;
                 return (
-                  <GlassCard
-                    key={service.id}
-                    className="p-gutter rounded-xl flex flex-col justify-between group hover:border-primary/50 transition-all duration-300"
-                  >
-                    <div>
-                      {service.image ? (
-                        <div className="aspect-video w-full rounded-lg overflow-hidden mb-6 border border-outline-variant/10 bg-surface-container">
-                          <img
-                            src={service.image}
-                            alt={service.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center mb-6 text-primary group-hover:scale-110 transition-transform">
-                          <IconComponent size={20} />
-                        </div>
-                      )}
-                      <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">
-                        {service.title}
-                      </h3>
-                      <p className="font-body-md text-body-md text-on-surface-variant mb-6 leading-relaxed">
-                        {service.description}
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mt-auto pt-6 border-t border-outline-variant/30 w-full">
-                      <span className="font-body-md text-body-md font-semibold text-primary">
-                        {service.price === "Inquiry Only" ? "Inquiry Only" : `From ${service.price}`}
-                      </span>
-                      <ArrowRight size={16} className="text-outline group-hover:translate-x-1 transition-transform group-hover:text-primary" />
-                    </div>
-                  </GlassCard>
+                  <Link href={`/booking?service=${encodeURIComponent(service.title)}`} key={service.id} className="block h-full">
+                    <GlassCard
+                      className="p-gutter rounded-xl flex flex-col justify-between group hover:border-primary/50 cursor-pointer h-full transition-all duration-300"
+                    >
+                      <div>
+                        {service.image ? (
+                          <div className="aspect-video w-full rounded-lg overflow-hidden mb-6 border border-outline-variant/10 bg-surface-container">
+                            <img
+                              src={service.image}
+                              alt={service.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center mb-6 text-primary group-hover:scale-110 transition-transform">
+                            <IconComponent size={20} />
+                          </div>
+                        )}
+                        <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">
+                          {service.title}
+                        </h3>
+                        <p className="font-body-md text-body-md text-on-surface-variant mb-6 leading-relaxed">
+                          {service.description}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-auto pt-6 border-t border-outline-variant/30 w-full">
+                        <span className="font-body-md text-body-md font-semibold text-primary">
+                          {service.price === "Inquiry Only" ? "Inquiry Only" : `From ${service.price}`}
+                        </span>
+                        <ArrowRight size={16} className="text-outline group-hover:translate-x-1 transition-transform group-hover:text-primary" />
+                      </div>
+                    </GlassCard>
+                  </Link>
                 );
               })}
             </div>
