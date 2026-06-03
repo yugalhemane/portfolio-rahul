@@ -241,6 +241,15 @@ export default function AdminDashboard() {
         fetch(`${API_BASE_URL}/section-images`).catch(() => null),
       ]);
 
+      // Check if user is unauthorized (invalid or expired token)
+      if ((bookingsRes && bookingsRes.status === 401) || (inquiriesRes && inquiriesRes.status === 401)) {
+        localStorage.removeItem("admin_token");
+        setToken("");
+        setIsAuthenticated(false);
+        alert("Your session has expired. Please log in again.");
+        return;
+      }
+
       let bookingsData: Booking[] = [];
       let inquiriesData: Inquiry[] = [];
       let servicesData: Service[] = [];
