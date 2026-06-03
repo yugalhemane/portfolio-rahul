@@ -57,7 +57,7 @@ const upsertSectionImage = async (req, res) => {
         pageName,
         sectionName,
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
 
     res.status(200).json(sectionImage);
