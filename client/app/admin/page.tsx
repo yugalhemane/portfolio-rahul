@@ -1673,7 +1673,7 @@ export default function AdminDashboard() {
                                 <label className="font-label-caps text-[10px] text-outline">Media Title *</label>
                                 <input
                                   type="text"
-                                  value={galleryForm.title}
+                                  value={galleryForm.title || ""}
                                   onChange={(e) => setGalleryForm(prev => ({ ...prev, title: e.target.value }))}
                                   required
                                   className="block w-full px-3 py-2 bg-surface border border-outline-variant rounded font-body-md text-on-surface text-sm outline-none focus:border-primary"
@@ -1682,7 +1682,7 @@ export default function AdminDashboard() {
                               <div className="space-y-1">
                                 <label className="font-label-caps text-[10px] text-outline">Showcase Category *</label>
                                 <select
-                                  value={galleryForm.category}
+                                  value={galleryForm.category || "cuts"}
                                   onChange={(e) => setGalleryForm(prev => ({ ...prev, category: e.target.value as GalleryItem["category"] }))}
                                   className="block w-full px-3 py-2 bg-surface border border-outline-variant rounded font-body-md text-on-surface text-sm outline-none focus:border-primary"
                                 >
@@ -1703,7 +1703,7 @@ export default function AdminDashboard() {
                               <div className="space-y-1">
                                 <label className="font-label-caps text-[10px] text-outline">Mark Featured?</label>
                                 <select
-                                  value={galleryForm.featured}
+                                  value={galleryForm.featured || "false"}
                                   onChange={(e) => setGalleryForm(prev => ({ ...prev, featured: e.target.value }))}
                                   className="block w-full px-3 py-2 bg-surface border border-outline-variant rounded font-body-md text-on-surface text-sm outline-none focus:border-primary"
                                 >
@@ -1715,7 +1715,7 @@ export default function AdminDashboard() {
                                 <label className="font-label-caps text-[10px] text-outline">Description</label>
                                 <input
                                   type="text"
-                                  value={galleryForm.description}
+                                  value={galleryForm.description || ""}
                                   onChange={(e) => setGalleryForm(prev => ({ ...prev, description: e.target.value }))}
                                   className="block w-full px-3 py-2 bg-surface border border-outline-variant rounded font-body-md text-on-surface text-sm outline-none focus:border-primary"
                                 />
@@ -1842,7 +1842,7 @@ export default function AdminDashboard() {
                                       <input
                                         type="text"
                                         placeholder="https://instagram.com/reel/..."
-                                        value={galleryForm.videoUrl}
+                                        value={galleryForm.videoUrl || ""}
                                         required={!editingGallery}
                                         onChange={(e) => setGalleryForm(prev => ({ ...prev, videoUrl: e.target.value }))}
                                         className="block w-full px-3 py-1.5 bg-surface border border-outline-variant rounded font-body-md text-on-surface text-sm outline-none focus:border-primary"
