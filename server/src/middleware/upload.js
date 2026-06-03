@@ -44,8 +44,17 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Memory storage is used so we can dynamically choose to upload to Cloudinary or save to local disk
-const storage = multer.memoryStorage();
+// Use disk storage to write incoming files directly to disk instead of RAM,
+// preventing Out-Of-Memory (OOM) crashes on low-memory servers (like Render's free tier).
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
+  }
+});
 
 const upload = multer({
   storage,
@@ -77,7 +86,7 @@ const upload = multer({
 });
 
 /**
- * Uploads a file buffer to Cloudinary or saves it locally.
+ * Uploads a file from local disk to Cloudinary or saves it locally.
  * @param {Object} file - The file object from Multer (req.file)
  * @param {string} folder - The directory/folder name
  * @returns {Promise<string>} The file URL path (Cloudinary secure_url or server relative path)
@@ -86,35 +95,41 @@ const uploadFile = async (file, folder = "rahul-portfolio") => {
   if (!file || !file.originalname || file.originalname.trim() === "" || file.size === 0) return null;
 
   if (isCloudinaryConfigured) {
-    return new Promise((resolve, reject) => {
+    try {
       const isVideo = file.mimetype.startsWith("video/") || /\.(mp4|mov|mpeg)$/i.test(file.originalname);
       const resourceType = isVideo ? "video" : "image";
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { folder, resource_type: resourceType },
-        (error, result) => {
-          if (error) {
-            console.error("Cloudinary Upload Stream Error:", error);
-            reject(error);
-          } else {
-            let url = result.secure_url;
-            // Convert HEIC/HEIF secure URLs to .jpg on the fly so browsers can render them
-            if (/\.(heic|heif)$/i.test(url)) {
-              url = url.replace(/\.(heic|heif)$/i, ".jpg");
-            }
-            resolve(url);
-          }
-        }
-      );
-      uploadStream.end(file.buffer);
-    });
+      
+      // Upload file directly from local disk path
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder,
+        resource_type: resourceType
+      });
+
+      // Clean up the temporary file from local disk after successful upload
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+
+      let url = result.secure_url;
+      // Convert HEIC/HEIF secure URLs to .jpg on the fly so browsers can render them
+      if (/\.(heic|heif)$/i.test(url)) {
+        url = url.replace(/\.(heic|heif)$/i, ".jpg");
+      }
+      return url;
+    } catch (error) {
+      console.error("Cloudinary Disk Upload Error:", error);
+      // Ensure temp file is cleaned up even if upload fails
+      if (fs.existsSync(file.path)) {
+        try {
+          fs.unlinkSync(file.path);
+        } catch (unlinkErr) {}
+      }
+      throw error;
+    }
   } else {
-    // Save to local uploads folder
-    const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
-    const filePath = path.join(uploadsDir, filename);
-    await fs.promises.writeFile(filePath, file.buffer);
-    
-    // Return relative URL for static serving
-    return `/uploads/${filename}`;
+    // If Cloudinary is not configured, the file remains saved in the local uploads directory.
+    // We just return its public URL path.
+    return `/uploads/${file.filename}`;
   }
 };
 
