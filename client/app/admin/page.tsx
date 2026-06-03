@@ -384,15 +384,8 @@ export default function AdminDashboard() {
         setLoginError(data.message || "Invalid username or password.");
       }
     } catch (err) {
-      console.log("Login network error, simulating offline login for development:", err);
-      if (username === "admin" && password === "rahulpas123") {
-        const mockToken = "mock_jwt_token_for_rahul";
-        localStorage.setItem("admin_token", mockToken);
-        setToken(mockToken);
-        setIsAuthenticated(true);
-      } else {
-        setLoginError("Login failed. Check server connection or use admin/rahulpas123.");
-      }
+      console.log("Login network error:", err);
+      setLoginError("Login failed. Unable to connect to the backend server. Please check your network connection.");
     } finally {
       setIsLoggingIn(false);
     }
@@ -1167,11 +1160,7 @@ export default function AdminDashboard() {
                     </button>
                   </form>
 
-                  <div className="mt-8 pt-6 border-t border-outline-variant/30 text-center">
-                    <p className="font-body-md text-[10px] text-outline leading-relaxed">
-                      Developer Bypass Hint: Use username <code className="bg-surface-container px-1 py-0.5 rounded">admin</code> and password <code className="bg-surface-container px-1 py-0.5 rounded">rahulpas123</code>.
-                    </p>
-                  </div>
+
                 </GlassCard>
               </motion.div>
             </div>

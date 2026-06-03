@@ -13,8 +13,12 @@ const sectionImageRoutes = require("./routes/sectionImageRoutes");
 const app = express();
 
 // Middlewares
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(",").map(url => url.trim())
+  : ["http://localhost:3000", "http://127.0.0.1:3000"];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || ["http://localhost:3000", "http://127.0.0.1:3000"],
+  origin: allowedOrigins,
   credentials: true
 }));
 
