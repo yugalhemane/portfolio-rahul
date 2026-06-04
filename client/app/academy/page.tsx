@@ -104,12 +104,11 @@ export default function Academy() {
         setInquirySuccess(true);
         setFormData({ name: "", email: "", course: "", message: "" });
       } else {
-        console.log("Server responded with error. Falling back to local simulation.");
-        setInquirySuccess(true);
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.message || "Failed to submit inquiry. Please try again or email us directly at rahultipukade1@gmail.com.");
       }
     } catch (err) {
-      console.log("Inquiry submit network error. Falling back to local simulation:", err);
-      setInquirySuccess(true);
+      alert("Network error. Unable to connect to the server. Please check your connection or contact us directly at rahultipukade1@gmail.com.");
     } finally {
       setLoading(false);
     }

@@ -126,12 +126,11 @@ export default function Booking() {
         setSuccess(true);
         setFormData({ name: "", email: "", service: "", notes: "" });
       } else {
-        alert("Server error. Booking created locally simulation.");
-        setSuccess(true); // Fallback success for local dev
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.message || "Failed to request appointment. Please try again or book directly via WhatsApp.");
       }
     } catch (err) {
-      console.error(err);
-      setSuccess(true); // Fallback simulation in case backend is not running
+      alert("Network error. Unable to connect to the server. Please try booking directly via WhatsApp.");
     } finally {
       setLoading(false);
     }
