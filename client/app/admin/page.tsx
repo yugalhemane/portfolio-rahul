@@ -2615,6 +2615,7 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isLoaded, setIsLoaded] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -2629,6 +2630,36 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
     reader.readAsDataURL(settings.file);
   }, [settings.file]);
 
+  const getConstrainedOffset = (x: number, y: number, currentZoom: number) => {
+    if (!containerRef.current || !imgRef.current) return { x, y };
+    
+    const containerWidth = containerRef.current.clientWidth;
+    const containerHeight = containerRef.current.clientHeight;
+    
+    const naturalWidth = imgRef.current.naturalWidth;
+    const naturalHeight = imgRef.current.naturalHeight;
+    
+    if (!containerWidth || !containerHeight || !naturalWidth || !naturalHeight) return { x, y };
+
+    const scaleX = containerWidth / naturalWidth;
+    const scaleY = containerHeight / naturalHeight;
+    const scaleToCover = Math.max(scaleX, scaleY);
+    
+    const baseWidth = naturalWidth * scaleToCover;
+    const baseHeight = naturalHeight * scaleToCover;
+    
+    const displayW = baseWidth * currentZoom;
+    const displayH = baseHeight * currentZoom;
+    
+    const limitX = Math.max(0, (displayW - containerWidth) / 2);
+    const limitY = Math.max(0, (displayH - containerHeight) / 2);
+    
+    return {
+      x: Math.max(-limitX, Math.min(limitX, x)),
+      y: Math.max(-limitY, Math.min(limitY, y))
+    };
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
@@ -2636,10 +2667,9 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
-    setOffset({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
-    });
+    const rawX = e.clientX - dragStart.x;
+    const rawY = e.clientY - dragStart.y;
+    setOffset(getConstrainedOffset(rawX, rawY, zoom));
   };
 
   const handleMouseUp = () => {
@@ -2656,10 +2686,14 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
-    setOffset({
-      x: e.touches[0].clientX - dragStart.x,
-      y: e.touches[0].clientY - dragStart.y
-    });
+    const rawX = e.touches[0].clientX - dragStart.x;
+    const rawY = e.touches[0].clientY - dragStart.y;
+    setOffset(getConstrainedOffset(rawX, rawY, zoom));
+  };
+
+  const handleZoomChange = (newZoom: number) => {
+    setZoom(newZoom);
+    setOffset(prev => getConstrainedOffset(prev.x, prev.y, newZoom));
   };
 
   const handleSaveCrop = () => {
@@ -2679,26 +2713,36 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
     canvas.height = targetHeight;
     
     const rect = container.getBoundingClientRect();
+    const containerWidth = rect.width;
+    const containerHeight = rect.height;
     
-    ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
     
-    const viewW = rect.width;
-    const viewH = rect.height;
+    const scaleX = containerWidth / naturalWidth;
+    const scaleY = containerHeight / naturalHeight;
+    const scaleToCover = Math.max(scaleX, scaleY);
     
-    const natW = img.naturalWidth;
-    const natH = img.naturalHeight;
+    const baseWidth = naturalWidth * scaleToCover;
+    const baseHeight = naturalHeight * scaleToCover;
     
-    const ratioX = viewW / natW;
-    const ratioY = viewH / natH;
-    const scaleToFit = Math.min(ratioX, ratioY);
+    const displayW = baseWidth * zoom;
+    const displayH = baseHeight * zoom;
     
-    const displayW = natW * scaleToFit * zoom;
-    const displayH = natH * scaleToFit * zoom;
+    const scale = targetWidth / containerWidth;
     
-    const scale = targetWidth / viewW;
-    const drawX = (offset.x + (viewW - displayW) / 2) * scale;
-    const drawY = (offset.y + (viewH - displayH) / 2) * scale;
+    // Constrain offsets to match render behavior
+    const limitX = Math.max(0, (displayW - containerWidth) / 2);
+    const limitY = Math.max(0, (displayH - containerHeight) / 2);
+    
+    const constrainedX = Math.max(-limitX, Math.min(limitX, offset.x));
+    const constrainedY = Math.max(-limitY, Math.min(limitY, offset.y));
+    
+    const x = (containerWidth - displayW) / 2 + constrainedX;
+    const y = (containerHeight - displayH) / 2 + constrainedY;
+    
+    const drawX = x * scale;
+    const drawY = y * scale;
     const drawW = displayW * scale;
     const drawH = displayH * scale;
 
@@ -2714,6 +2758,40 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
       }
     }, "image/jpeg", 0.9);
   };
+
+  // Calculate rendering variables
+  let displayW = 0;
+  let displayH = 0;
+  let x = 0;
+  let y = 0;
+
+  if (isLoaded && containerRef.current && imgRef.current) {
+    const containerWidth = containerRef.current.clientWidth;
+    const containerHeight = containerRef.current.clientHeight;
+    const naturalWidth = imgRef.current.naturalWidth;
+    const naturalHeight = imgRef.current.naturalHeight;
+
+    if (naturalWidth && naturalHeight && containerWidth && containerHeight) {
+      const scaleX = containerWidth / naturalWidth;
+      const scaleY = containerHeight / naturalHeight;
+      const scaleToCover = Math.max(scaleX, scaleY);
+
+      const baseWidth = naturalWidth * scaleToCover;
+      const baseHeight = naturalHeight * scaleToCover;
+
+      displayW = baseWidth * zoom;
+      displayH = baseHeight * zoom;
+
+      const limitX = Math.max(0, (displayW - containerWidth) / 2);
+      const limitY = Math.max(0, (displayH - containerHeight) / 2);
+      
+      const constrainedX = Math.max(-limitX, Math.min(limitX, offset.x));
+      const constrainedY = Math.max(-limitY, Math.min(limitY, offset.y));
+
+      x = (containerWidth - displayW) / 2 + constrainedX;
+      y = (containerHeight - displayH) / 2 + constrainedY;
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-[120] bg-black/80 flex items-center justify-center p-4">
@@ -2750,16 +2828,18 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
               ref={imgRef}
               src={imgSrc}
               alt="Crop Source"
-              className="absolute pointer-events-none origin-center"
+              onLoad={() => {
+                setIsLoaded(true);
+                setZoom(1);
+                setOffset({ x: 0, y: 0 });
+              }}
+              className="absolute pointer-events-none select-none origin-top-left"
               style={{
-                transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
-                maxWidth: "100%",
-                maxHeight: "100%",
-                top: "50%",
-                left: "50%",
-                marginTop: "-50%",
-                marginLeft: "-50%",
-                objectFit: "contain"
+                width: isLoaded ? `${displayW}px` : "auto",
+                height: isLoaded ? `${displayH}px` : "auto",
+                left: isLoaded ? `${x}px` : "0px",
+                top: isLoaded ? `${y}px` : "0px",
+                opacity: isLoaded ? 1 : 0
               }}
             />
           )}
@@ -2777,7 +2857,7 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
             max="4"
             step="0.05"
             value={zoom}
-            onChange={(e) => setZoom(parseFloat(e.target.value))}
+            onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
             className="w-full h-1 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary"
           />
         </div>
