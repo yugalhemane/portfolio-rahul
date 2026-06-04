@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, Calendar, BookOpen, Settings, LogOut, Check, X, Clock, 
@@ -146,6 +146,13 @@ const EDITABLE_SECTIONS = [
   { key: "portfolio_after", pageName: "Portfolio", sectionName: "Transformation (After Image)", fallbackUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuBowznbSvls8WwbaA_i73BuePK3S8nJqtLMH1BCKWLfCC3X3ewbxxEgFMjZMM2qzem47Tgb1-5ovVkL3igbMJmjRal8oVDvKNKM4upY_2AMGWqeijtZlPJf8KTibCwKLPHNYwyMPYHntZig49fu3kjxQLpBEWJwDjmhDQ3L7GoNorsMu_PC31HS8R5F9nHrMC-79M4qW-S9YgmRxczSWb6OqN8FtsBf0qGjeVDUYqcMNltXePoCO29BxzZkpGlOw5s3rcbrWHIAAbk" }
 ];
 
+interface CropSettings {
+  file: File;
+  aspectRatio: number;
+  title: string;
+  onCropComplete: (croppedFile: File) => void;
+}
+
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState("");
@@ -169,6 +176,8 @@ export default function AdminDashboard() {
   
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [activeCrop, setActiveCrop] = useState<CropSettings | null>(null);
 
   // Service Management forms
   const [showAddService, setShowAddService] = useState(false);
@@ -505,6 +514,7 @@ export default function AdminDashboard() {
     }
 
     try {
+      setIsSaving(true);
       const formData = new FormData();
       formData.append("title", serviceForm.title);
       formData.append("description", serviceForm.description);
@@ -534,6 +544,8 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -553,6 +565,7 @@ export default function AdminDashboard() {
     }
 
     try {
+      setIsSaving(true);
       const formData = new FormData();
       formData.append("title", serviceForm.title);
       formData.append("description", serviceForm.description);
@@ -581,6 +594,8 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -637,6 +652,7 @@ export default function AdminDashboard() {
     }
 
     try {
+      setIsSaving(true);
       const formData = new FormData();
       formData.append("title", galleryForm.title);
       formData.append("category", galleryForm.category);
@@ -679,6 +695,8 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -704,6 +722,7 @@ export default function AdminDashboard() {
     }
 
     try {
+      setIsSaving(true);
       const formData = new FormData();
       formData.append("title", galleryForm.title);
       formData.append("category", galleryForm.category);
@@ -745,6 +764,8 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -797,6 +818,7 @@ export default function AdminDashboard() {
     }
 
     try {
+      setIsSaving(true);
       const formData = new FormData();
       formData.append("clientName", testimonialForm.clientName);
       formData.append("feedback", testimonialForm.feedback);
@@ -824,6 +846,8 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -845,6 +869,7 @@ export default function AdminDashboard() {
     }
 
     try {
+      setIsSaving(true);
       const formData = new FormData();
       formData.append("clientName", testimonialForm.clientName);
       formData.append("feedback", testimonialForm.feedback);
@@ -871,6 +896,8 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -931,6 +958,7 @@ export default function AdminDashboard() {
     }
 
     try {
+      setIsSaving(true);
       const formData = new FormData();
       formData.append("title", courseForm.title);
       formData.append("description", courseForm.description);
@@ -959,6 +987,8 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -988,6 +1018,7 @@ export default function AdminDashboard() {
     }
 
     try {
+      setIsSaving(true);
       const formData = new FormData();
       formData.append("title", courseForm.title);
       formData.append("description", courseForm.description);
@@ -1015,6 +1046,8 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -1551,7 +1584,16 @@ export default function AdminDashboard() {
                                 accept="image/*"
                                 onChange={(e) => {
                                   if (e.target.files && e.target.files[0]) {
-                                    setServiceImageFile(e.target.files[0]);
+                                    const file = e.target.files[0];
+                                    setActiveCrop({
+                                      file,
+                                      aspectRatio: 4/3,
+                                      title: "Crop Service Cover Image",
+                                      onCropComplete: (croppedFile) => {
+                                        setServiceImageFile(croppedFile);
+                                        setActiveCrop(null);
+                                      }
+                                    });
                                   }
                                 }}
                                 className="block w-full text-xs text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
@@ -1561,18 +1603,21 @@ export default function AdminDashboard() {
                             <div className="flex gap-2 pt-2">
                               <button
                                 type="submit"
-                                className="px-5 py-2.5 bg-primary text-on-primary font-label-caps text-xs tracking-wider rounded font-bold hover:opacity-90 active:scale-95 transition-all"
+                                disabled={isSaving}
+                                className="px-5 py-2.5 bg-primary text-on-primary font-label-caps text-xs tracking-wider rounded font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
                               >
-                                {editingService ? "SAVE CHANGES" : "CREATE SERVICE"}
+                                {isSaving && <RefreshCw size={12} className="animate-spin text-on-primary" />}
+                                {editingService ? (isSaving ? "SAVING..." : "SAVE CHANGES") : (isSaving ? "CREATING..." : "CREATE SERVICE")}
                               </button>
                               <button
                                 type="button"
+                                disabled={isSaving}
                                 onClick={() => {
                                   setShowAddService(false);
                                   setEditingService(null);
                                   setServiceImageFile(null);
                                 }}
-                                className="px-5 py-2.5 border border-outline-variant text-on-surface font-label-caps text-xs tracking-wider rounded"
+                                className="px-5 py-2.5 border border-outline-variant text-on-surface font-label-caps text-xs tracking-wider rounded disabled:opacity-50"
                               >
                                 CANCEL
                               </button>
@@ -1743,7 +1788,15 @@ export default function AdminDashboard() {
                                     onChange={(e) => {
                                       if (e.target.files && e.target.files[0]) {
                                         const file = e.target.files[0];
-                                        setGalleryFiles(prev => ({ ...prev, beforeImage: file }));
+                                        setActiveCrop({
+                                          file,
+                                          aspectRatio: 1.0,
+                                          title: "Crop Before Image",
+                                          onCropComplete: (croppedFile) => {
+                                            setGalleryFiles(prev => ({ ...prev, beforeImage: croppedFile }));
+                                            setActiveCrop(null);
+                                          }
+                                        });
                                       }
                                     }}
                                     className="block w-full text-xs text-on-surface-variant file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-primary/10 file:text-primary cursor-pointer"
@@ -1758,7 +1811,15 @@ export default function AdminDashboard() {
                                     onChange={(e) => {
                                       if (e.target.files && e.target.files[0]) {
                                         const file = e.target.files[0];
-                                        setGalleryFiles(prev => ({ ...prev, afterImage: file }));
+                                        setActiveCrop({
+                                          file,
+                                          aspectRatio: 1.0,
+                                          title: "Crop After Image",
+                                          onCropComplete: (croppedFile) => {
+                                            setGalleryFiles(prev => ({ ...prev, afterImage: croppedFile }));
+                                            setActiveCrop(null);
+                                          }
+                                        });
                                       }
                                     }}
                                     className="block w-full text-xs text-on-surface-variant file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-primary/10 file:text-primary cursor-pointer"
@@ -1823,7 +1884,15 @@ export default function AdminDashboard() {
                                         onChange={(e) => {
                                           if (e.target.files && e.target.files[0]) {
                                             const file = e.target.files[0];
-                                            setGalleryFiles(prev => ({ ...prev, thumbnail: file }));
+                                            setActiveCrop({
+                                              file,
+                                              aspectRatio: 9/16,
+                                              title: "Crop Reel Thumbnail (Vertical)",
+                                              onCropComplete: (croppedFile) => {
+                                                setGalleryFiles(prev => ({ ...prev, thumbnail: croppedFile }));
+                                                setActiveCrop(null);
+                                              }
+                                            });
                                           }
                                         }}
                                         className="block w-full text-xs text-on-surface-variant file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-primary/10 file:text-primary cursor-pointer"
@@ -1840,7 +1909,15 @@ export default function AdminDashboard() {
                                         onChange={(e) => {
                                           if (e.target.files && e.target.files[0]) {
                                             const file = e.target.files[0];
-                                            setGalleryFiles(prev => ({ ...prev, file }));
+                                            setActiveCrop({
+                                              file,
+                                              aspectRatio: 9/16,
+                                              title: "Crop Reel Thumbnail (Vertical)",
+                                              onCropComplete: (croppedFile) => {
+                                                setGalleryFiles(prev => ({ ...prev, file: croppedFile }));
+                                                setActiveCrop(null);
+                                              }
+                                            });
                                           }
                                         }}
                                         className="block w-full text-xs text-on-surface-variant file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-primary/10 file:text-primary cursor-pointer"
@@ -1870,7 +1947,15 @@ export default function AdminDashboard() {
                                   onChange={(e) => {
                                     if (e.target.files && e.target.files[0]) {
                                       const file = e.target.files[0];
-                                      setGalleryFiles(prev => ({ ...prev, file }));
+                                      setActiveCrop({
+                                        file,
+                                        aspectRatio: 3/4,
+                                        title: "Crop Portfolio Image",
+                                        onCropComplete: (croppedFile) => {
+                                          setGalleryFiles(prev => ({ ...prev, file: croppedFile }));
+                                          setActiveCrop(null);
+                                        }
+                                      });
                                     }
                                   }}
                                   className="block w-full text-xs text-on-surface-variant file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-primary/10 file:text-primary cursor-pointer"
@@ -1881,18 +1966,21 @@ export default function AdminDashboard() {
                             <div className="flex gap-2 pt-2">
                               <button
                                 type="submit"
-                                className="px-5 py-2.5 bg-primary text-on-primary font-label-caps text-xs tracking-wider rounded font-bold hover:opacity-90 active:scale-95 transition-all"
+                                disabled={isSaving}
+                                className="px-5 py-2.5 bg-primary text-on-primary font-label-caps text-xs tracking-wider rounded font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
                               >
-                                {editingGallery ? "SAVE CHANGES" : "UPLOAD & SAVE"}
+                                {isSaving && <RefreshCw size={12} className="animate-spin text-on-primary" />}
+                                {editingGallery ? (isSaving ? "SAVING..." : "SAVE CHANGES") : (isSaving ? "UPLOADING..." : "UPLOAD & SAVE")}
                               </button>
                               <button
                                 type="button"
+                                disabled={isSaving}
                                 onClick={() => {
                                   setShowAddGallery(false);
                                   setEditingGallery(null);
                                   setGalleryFiles({});
                                 }}
-                                className="px-5 py-2.5 border border-outline-variant text-on-surface font-label-caps text-xs tracking-wider rounded"
+                                className="px-5 py-2.5 border border-outline-variant text-on-surface font-label-caps text-xs tracking-wider rounded disabled:opacity-50"
                               >
                                 CANCEL
                               </button>
@@ -2051,7 +2139,16 @@ export default function AdminDashboard() {
                                 accept="image/*"
                                 onChange={(e) => {
                                   if (e.target.files && e.target.files[0]) {
-                                    setTestimonialFile(e.target.files[0]);
+                                    const file = e.target.files[0];
+                                    setActiveCrop({
+                                      file,
+                                      aspectRatio: 1.0,
+                                      title: "Crop Testimonial Client Avatar",
+                                      onCropComplete: (croppedFile) => {
+                                        setTestimonialFile(croppedFile);
+                                        setActiveCrop(null);
+                                      }
+                                    });
                                   }
                                 }}
                                 className="block w-full text-xs text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
@@ -2061,18 +2158,21 @@ export default function AdminDashboard() {
                             <div className="flex gap-2 pt-2">
                               <button
                                 type="submit"
-                                className="px-5 py-2.5 bg-primary text-on-primary font-label-caps text-xs tracking-wider rounded font-bold hover:opacity-90 active:scale-95 transition-all"
+                                disabled={isSaving}
+                                className="px-5 py-2.5 bg-primary text-on-primary font-label-caps text-xs tracking-wider rounded font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
                               >
-                                {editingTestimonial ? "SAVE CHANGES" : "SAVE TESTIMONIAL"}
+                                {isSaving && <RefreshCw size={12} className="animate-spin text-on-primary" />}
+                                {editingTestimonial ? (isSaving ? "SAVING..." : "SAVE CHANGES") : (isSaving ? "SAVING..." : "SAVE TESTIMONIAL")}
                               </button>
                               <button
                                 type="button"
+                                disabled={isSaving}
                                 onClick={() => {
                                   setShowAddTestimonial(false);
                                   setEditingTestimonial(null);
                                   setTestimonialFile(null);
                                 }}
-                                className="px-5 py-2.5 border border-outline-variant text-on-surface font-label-caps text-xs tracking-wider rounded"
+                                className="px-5 py-2.5 border border-outline-variant text-on-surface font-label-caps text-xs tracking-wider rounded disabled:opacity-50"
                               >
                                 CANCEL
                               </button>
@@ -2256,7 +2356,16 @@ export default function AdminDashboard() {
                                 accept="image/*"
                                 onChange={(e) => {
                                   if (e.target.files && e.target.files[0]) {
-                                    setCourseFile(e.target.files[0]);
+                                    const file = e.target.files[0];
+                                    setActiveCrop({
+                                      file,
+                                      aspectRatio: 4/3,
+                                      title: "Crop Course Banner Image",
+                                      onCropComplete: (croppedFile) => {
+                                        setCourseFile(croppedFile);
+                                        setActiveCrop(null);
+                                      }
+                                    });
                                   }
                                 }}
                                 className="block w-full text-xs text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
@@ -2266,18 +2375,21 @@ export default function AdminDashboard() {
                             <div className="flex gap-2 pt-2">
                               <button
                                 type="submit"
-                                className="px-5 py-2.5 bg-primary text-on-primary font-label-caps text-xs tracking-wider rounded font-bold hover:opacity-90 active:scale-95 transition-all"
+                                disabled={isSaving}
+                                className="px-5 py-2.5 bg-primary text-on-primary font-label-caps text-xs tracking-wider rounded font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
                               >
-                                {editingCourse ? "SAVE CHANGES" : "SAVE COURSE"}
+                                {isSaving && <RefreshCw size={12} className="animate-spin text-on-primary" />}
+                                {editingCourse ? (isSaving ? "SAVING..." : "SAVE CHANGES") : (isSaving ? "SAVING..." : "SAVE COURSE")}
                               </button>
                               <button
                                 type="button"
+                                disabled={isSaving}
                                 onClick={() => {
                                   setShowAddCourse(false);
                                   setEditingCourse(null);
                                   setCourseFile(null);
                                 }}
-                                className="px-5 py-2.5 border border-outline-variant text-on-surface font-label-caps text-xs tracking-wider rounded"
+                                className="px-5 py-2.5 border border-outline-variant text-on-surface font-label-caps text-xs tracking-wider rounded disabled:opacity-50"
                               >
                                 CANCEL
                               </button>
@@ -2429,7 +2541,17 @@ export default function AdminDashboard() {
                                             className="hidden"
                                             onChange={(e) => {
                                               if (e.target.files && e.target.files[0]) {
-                                                handleSectionImageUpload(sect.key, e.target.files[0], sect.pageName, sect.sectionName);
+                                                const file = e.target.files[0];
+                                                const isPortrait = sect.key === "home_hero" || sect.key === "about_intro";
+                                                setActiveCrop({
+                                                  file,
+                                                  aspectRatio: isPortrait ? 3/4 : 4/3,
+                                                  title: `Crop Section Image: ${sect.sectionName}`,
+                                                  onCropComplete: (croppedFile) => {
+                                                    handleSectionImageUpload(sect.key, croppedFile, sect.pageName, sect.sectionName);
+                                                    setActiveCrop(null);
+                                                  }
+                                                });
                                               }
                                             }}
                                           />
@@ -2439,7 +2561,14 @@ export default function AdminDashboard() {
                                               uploadingSectionKey === sect.key ? "opacity-50 pointer-events-none" : ""
                                             }`}
                                           >
-                                            {uploadingSectionKey === sect.key ? "UPLOADING..." : "UPLOAD NEW"}
+                                            {uploadingSectionKey === sect.key ? (
+                                              <>
+                                                <RefreshCw size={12} className="animate-spin text-primary" />
+                                                UPLOADING...
+                                              </>
+                                            ) : (
+                                              "UPLOAD NEW"
+                                            )}
                                           </label>
                                         </div>
                                       </div>
@@ -2464,6 +2593,211 @@ export default function AdminDashboard() {
       </main>
 
       <PremiumFooter />
+      
+      {activeCrop && (
+        <ImageCropperModal
+          settings={activeCrop}
+          onClose={() => setActiveCrop(null)}
+        />
+      )}
     </>
   );
 }
+
+interface ImageCropperModalProps {
+  settings: CropSettings;
+  onClose: () => void;
+}
+
+function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
+  const [imgSrc, setImgSrc] = useState<string>("");
+  const [zoom, setZoom] = useState<number>(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.result) {
+        setImgSrc(reader.result as string);
+      }
+    };
+    reader.readAsDataURL(settings.file);
+  }, [settings.file]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setOffset({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setDragStart({ 
+      x: e.touches[0].clientX - offset.x, 
+      y: e.touches[0].clientY - offset.y 
+    });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    setOffset({
+      x: e.touches[0].clientX - dragStart.x,
+      y: e.touches[0].clientY - dragStart.y
+    });
+  };
+
+  const handleSaveCrop = () => {
+    if (!imgRef.current || !containerRef.current) return;
+    
+    const container = containerRef.current;
+    const img = imgRef.current;
+    
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const targetWidth = 800;
+    const targetHeight = targetWidth / settings.aspectRatio;
+    
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    
+    const rect = container.getBoundingClientRect();
+    
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    
+    const viewW = rect.width;
+    const viewH = rect.height;
+    
+    const natW = img.naturalWidth;
+    const natH = img.naturalHeight;
+    
+    const ratioX = viewW / natW;
+    const ratioY = viewH / natH;
+    const scaleToFit = Math.min(ratioX, ratioY);
+    
+    const displayW = natW * scaleToFit * zoom;
+    const displayH = natH * scaleToFit * zoom;
+    
+    const scale = targetWidth / viewW;
+    const drawX = (offset.x + (viewW - displayW) / 2) * scale;
+    const drawY = (offset.y + (viewH - displayH) / 2) * scale;
+    const drawW = displayW * scale;
+    const drawH = displayH * scale;
+
+    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+    
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const croppedFile = new File([blob], settings.file.name, {
+          type: "image/jpeg",
+          lastModified: Date.now()
+        });
+        settings.onCropComplete(croppedFile);
+      }
+    }, "image/jpeg", 0.9);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[120] bg-black/80 flex items-center justify-center p-4">
+      <GlassCard className="max-w-md w-full bg-white/95 border border-outline-variant/30 rounded-2xl p-6 space-y-6" tiltEnabled={false}>
+        <div className="flex justify-between items-center border-b border-outline-variant/20 pb-3">
+          <h3 className="font-headline-sm text-base text-on-surface">{settings.title}</h3>
+          <button onClick={onClose} className="p-1 hover:bg-surface-container rounded text-outline hover:text-on-surface">
+            <X size={18} />
+          </button>
+        </div>
+        
+        <p className="text-xs text-on-surface-variant font-body-md">
+          Drag the image to position the head or critical portions inside the frame. Use the zoom slider below.
+        </p>
+
+        <div 
+          ref={containerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleMouseUp}
+          className="relative bg-black overflow-hidden cursor-move select-none border border-outline-variant/30 rounded-xl"
+          style={{ 
+            aspectRatio: `${settings.aspectRatio}`,
+            width: "100%",
+            maxHeight: "350px"
+          }}
+        >
+          {imgSrc && (
+            <img
+              ref={imgRef}
+              src={imgSrc}
+              alt="Crop Source"
+              className="absolute pointer-events-none origin-center"
+              style={{
+                transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+                maxWidth: "100%",
+                maxHeight: "100%",
+                top: "50%",
+                left: "50%",
+                marginTop: "-50%",
+                marginLeft: "-50%",
+                objectFit: "contain"
+              }}
+            />
+          )}
+          <div className="absolute inset-0 border-2 border-primary pointer-events-none opacity-40"></div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs text-outline font-label-caps font-bold">
+            <span>ZOOM</span>
+            <span>{Math.round(zoom * 100)}%</span>
+          </div>
+          <input
+            type="range"
+            min="1"
+            max="4"
+            step="0.05"
+            value={zoom}
+            onChange={(e) => setZoom(parseFloat(e.target.value))}
+            className="w-full h-1 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary"
+          />
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <button
+            onClick={handleSaveCrop}
+            className="flex-grow px-5 py-3 bg-primary text-on-primary font-label-caps text-xs tracking-wider rounded font-bold hover:opacity-90 active:scale-95 transition-all shadow-md"
+          >
+            APPLY CROP &amp; UPLOAD
+          </button>
+          <button
+            onClick={onClose}
+            className="px-5 py-3 border border-outline-variant text-on-surface font-label-caps text-xs tracking-wider rounded"
+          >
+            CANCEL
+          </button>
+        </div>
+      </GlassCard>
+    </div>
+  );
+}
+
