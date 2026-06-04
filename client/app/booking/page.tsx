@@ -190,8 +190,8 @@ export default function Booking() {
   };
 
   const today = new Date();
-  const isPrevMonthDisabled = 
-    viewedDate.getFullYear() <= today.getFullYear() && 
+  const isPrevMonthDisabled =
+    viewedDate.getFullYear() <= today.getFullYear() &&
     viewedDate.getMonth() <= today.getMonth();
 
   const monthNames = [
@@ -207,7 +207,7 @@ export default function Booking() {
 
       <main className="pt-32 pb-stack-lg bg-surface">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          
+
           <header className="mb-stack-lg text-center md:text-left max-w-2xl">
             <span className="font-label-caps text-label-caps text-secondary mb-4 block uppercase tracking-widest">
               PREMIUM CONSULTATIONS
@@ -221,12 +221,12 @@ export default function Booking() {
           </header>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-            
+
             <section className="lg:col-span-8">
               <GlassCard className="p-8 rounded-xl">
-                
+
                 {success ? (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="flex flex-col items-center justify-center py-16 text-center"
@@ -247,7 +247,7 @@ export default function Booking() {
                   </motion.div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    
+
                     <div>
                       <div className="flex items-center justify-between mb-8">
                         <div className="space-y-1">
@@ -261,11 +261,10 @@ export default function Booking() {
                             type="button"
                             disabled={isPrevMonthDisabled}
                             onClick={handlePrevMonth}
-                            className={`p-2 rounded-full transition-colors ${
-                              isPrevMonthDisabled 
-                                ? "text-outline/30 cursor-not-allowed" 
-                                : "hover:bg-surface-container"
-                            }`}
+                            className={`p-2 rounded-full transition-colors ${isPrevMonthDisabled
+                              ? "text-outline/30 cursor-not-allowed"
+                              : "hover:bg-surface-container"
+                              }`}
                           >
                             <ChevronLeft size={16} />
                           </button>
@@ -278,7 +277,7 @@ export default function Booking() {
                           </button>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-7 gap-2 text-center mb-4">
                         {["MO", "TU", "WE", "TH", "FR", "SA", "SU"].map((dw) => (
                           <span key={dw} className="font-label-caps text-[10px] text-outline font-bold">
@@ -311,13 +310,12 @@ export default function Booking() {
                               type="button"
                               disabled={isDisabled}
                               onClick={() => setSelectedDate(dayObj.date)}
-                              className={`p-3 rounded-lg text-sm font-body-md transition-all ${
-                                isDisabled
-                                  ? "text-outline/30 cursor-not-allowed opacity-40"
-                                  : isSelected
+                              className={`p-3 rounded-lg text-sm font-body-md transition-all ${isDisabled
+                                ? "text-outline/30 cursor-not-allowed opacity-40"
+                                : isSelected
                                   ? "bg-primary text-on-primary font-bold shadow-md"
                                   : "hover:bg-surface-container-low"
-                              }`}
+                                }`}
                             >
                               {dayObj.day}
                             </button>
@@ -332,7 +330,7 @@ export default function Booking() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-8 flex flex-col justify-center">
-                      
+
                       <div className="relative">
                         <input
                           type="text"
@@ -427,7 +425,7 @@ export default function Booking() {
                             </>
                           )}
                         </button>
-                        
+
                         <div className="flex items-center space-x-4">
                           <div className="flex-grow h-px bg-outline-variant/30"></div>
                           <span className="font-label-caps text-[10px] text-outline font-bold">OR</span>
@@ -453,17 +451,17 @@ export default function Booking() {
             </section>
 
             <aside className="lg:col-span-4 space-y-gutter">
-              
+
               <GlassCard className="p-8 rounded-xl space-y-8">
                 <h3 className="font-headline-sm text-headline-sm text-on-surface">Contact Studio</h3>
-                
+
                 <div className="flex items-start space-x-4">
                   <div className="p-3 bg-surface-container rounded-lg text-primary">
                     <Phone size={18} />
                   </div>
                   <div>
                     <h4 className="font-label-caps text-label-caps text-secondary mb-1">Phone</h4>
-                    <p className="font-body-md text-on-surface-variant">+91 98765 43210</p>
+                    <p className="font-body-md text-on-surface-variant">+91 8867732280</p>
                   </div>
                 </div>
 
@@ -473,7 +471,7 @@ export default function Booking() {
                   </div>
                   <div>
                     <h4 className="font-label-caps text-label-caps text-secondary mb-1">Email</h4>
-                    <p className="font-body-md text-on-surface-variant">studio@rahultipukade.com</p>
+                    <p className="font-body-md text-on-surface-variant">rahultipukade1@gmail.com</p>
                   </div>
                 </div>
 
@@ -526,7 +524,7 @@ export default function Booking() {
               <h2 className="font-display-lg text-headline-lg text-on-surface">Join the Lifestyle</h2>
               <div className="h-0.5 w-24 bg-primary mx-auto mt-4"></div>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter text-on-surface">
               <a
                 href="https://instagram.com"
@@ -539,7 +537,7 @@ export default function Booking() {
                 </div>
                 <span className="font-label-caps text-label-caps font-bold text-xs tracking-wider">INSTAGRAM</span>
               </a>
-              
+
               <a
                 href="https://facebook.com"
                 target="_blank"
