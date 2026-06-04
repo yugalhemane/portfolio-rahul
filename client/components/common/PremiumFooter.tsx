@@ -138,6 +138,16 @@ export default function PremiumFooter() {
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop mt-stack-lg pt-stack-sm border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm font-body-md">
         <p className="text-on-surface-variant">
           © {new Date().getFullYear()} Rahul S Tipukade. Designed with style.
+          <span className="mx-2 text-outline-variant/40">|</span>
+          Developed by{" "}
+          <a
+            href="https://portfolio-xi-swart-31.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            Yugal Hemane
+          </a>
         </p>
         <div className="flex gap-6 text-on-surface-variant">
           <Link href="/portfolio" className="hover:text-primary transition-colors">
