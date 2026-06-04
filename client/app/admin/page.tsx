@@ -2764,9 +2764,10 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
   let displayH = 0;
   let x = 0;
   let y = 0;
+  let containerWidth = 1;
 
   if (isLoaded && containerRef.current && imgRef.current) {
-    const containerWidth = containerRef.current.clientWidth;
+    containerWidth = containerRef.current.clientWidth;
     const containerHeight = containerRef.current.clientHeight;
     const naturalWidth = imgRef.current.naturalWidth;
     const naturalHeight = imgRef.current.naturalHeight;
@@ -2860,6 +2861,137 @@ function ImageCropperModal({ settings, onClose }: ImageCropperModalProps) {
             onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
             className="w-full h-1 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary"
           />
+        </div>
+
+        {/* LIVE FRONTEND CARD PREVIEW */}
+        <div className="border-t border-outline-variant/20 pt-4 space-y-3">
+          <div className="font-label-caps text-[10px] text-outline font-bold tracking-wider">
+            LIVE FRONTEND CARD PREVIEW
+          </div>
+          
+          <div className="flex justify-center bg-surface-container-low/40 p-4 rounded-xl border border-outline-variant/10">
+            {settings.aspectRatio === 1.0 && settings.title.toLowerCase().includes("avatar") ? (
+              /* Testimonial Avatar style preview card */
+              <div className="bg-white/80 border border-outline-variant/30 p-4 rounded-xl shadow-sm max-w-[280px] w-full flex gap-3 items-center">
+                <div 
+                  className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-black relative border border-outline-variant/10"
+                >
+                  {imgSrc && isLoaded && (
+                    <img
+                      src={imgSrc}
+                      alt="Preview Avatar"
+                      className="absolute pointer-events-none select-none origin-top-left"
+                      style={{
+                        width: `${displayW * (48 / containerWidth)}px`,
+                        height: `${displayH * (48 / containerWidth)}px`,
+                        left: `${x * (48 / containerWidth)}px`,
+                        top: `${y * (48 / containerWidth)}px`,
+                      }}
+                    />
+                  )}
+                </div>
+                <div className="space-y-1 min-w-0">
+                  <div className="font-headline-sm text-xs font-bold text-on-surface truncate">Client Review Name</div>
+                  <div className="flex text-amber-500 text-[8px] gap-0.5">★ ★ ★ ★ ★</div>
+                  <p className="text-[10px] text-on-surface-variant italic truncate leading-tight">"Atelier is clean and service is premium."</p>
+                </div>
+              </div>
+            ) : settings.aspectRatio === 9/16 ? (
+              /* Reel Vertical Card Style Preview */
+              <div className="bg-white/80 border border-outline-variant/30 p-3 rounded-xl shadow-sm max-w-[150px] w-full space-y-2">
+                <div 
+                  className="rounded-lg overflow-hidden bg-black relative border border-outline-variant/10"
+                  style={{
+                    aspectRatio: "9/16",
+                    width: "100%"
+                  }}
+                >
+                  {imgSrc && isLoaded && (
+                    <img
+                      src={imgSrc}
+                      alt="Preview Reel"
+                      className="absolute pointer-events-none select-none origin-top-left"
+                      style={{
+                        width: `${displayW * (126 / containerWidth)}px`,
+                        height: `${displayH * (126 / containerWidth)}px`,
+                        left: `${x * (126 / containerWidth)}px`,
+                        top: `${y * (126 / containerWidth)}px`,
+                      }}
+                    />
+                  )}
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center text-primary shadow-md">
+                      <Play size={12} className="fill-current ml-0.5" />
+                    </div>
+                  </div>
+                </div>
+                <div className="text-[10px] font-bold text-on-surface truncate text-center">Trending Barber Reel</div>
+              </div>
+            ) : settings.aspectRatio === 1.0 ? (
+              /* Gallery Transformation Card Style Preview */
+              <div className="bg-white/80 border border-outline-variant/30 p-3 rounded-xl shadow-sm max-w-[200px] w-full space-y-2">
+                <div 
+                  className="rounded-lg overflow-hidden bg-black relative border border-outline-variant/10"
+                  style={{
+                    aspectRatio: "1/1",
+                    width: "100%"
+                  }}
+                >
+                  {imgSrc && isLoaded && (
+                    <img
+                      src={imgSrc}
+                      alt="Preview Transformation"
+                      className="absolute pointer-events-none select-none origin-top-left"
+                      style={{
+                        width: `${displayW * (176 / containerWidth)}px`,
+                        height: `${displayH * (176 / containerWidth)}px`,
+                        left: `${x * (176 / containerWidth)}px`,
+                        top: `${y * (176 / containerWidth)}px`,
+                      }}
+                    />
+                  )}
+                  <span className="absolute top-2 left-2 bg-black/70 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-widest">
+                    CROP PREVIEW
+                  </span>
+                </div>
+                <div className="text-[10px] font-bold text-on-surface truncate text-center">Transformation Card</div>
+              </div>
+            ) : (
+              /* Standard Landscape/Portrait Card Style Preview */
+              <div className="bg-white/80 border border-outline-variant/30 p-3 rounded-xl shadow-sm max-w-[220px] w-full space-y-3">
+                <div 
+                  className="rounded-lg overflow-hidden bg-black relative border border-outline-variant/10"
+                  style={{
+                    aspectRatio: `${settings.aspectRatio}`,
+                    width: "100%"
+                  }}
+                >
+                  {imgSrc && isLoaded && (
+                    <img
+                      src={imgSrc}
+                      alt="Preview Card"
+                      className="absolute pointer-events-none select-none origin-top-left"
+                      style={{
+                        width: `${displayW * (196 / containerWidth)}px`,
+                        height: `${displayH * (196 / containerWidth)}px`,
+                        left: `${x * (196 / containerWidth)}px`,
+                        top: `${y * (196 / containerWidth)}px`,
+                      }}
+                    />
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-headline-sm text-xs text-on-surface font-bold truncate">Premium Styling Service</h4>
+                  <p className="text-[10px] text-on-surface-variant truncate leading-tight">Atelier precision cut & styling details</p>
+                  <div className="flex justify-between items-center pt-2 border-t border-outline-variant/20">
+                    <span className="text-[10px] font-bold text-primary">$85 starting</span>
+                    <span className="text-[9px] text-outline font-semibold">Details →</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-3 pt-2">
